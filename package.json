@@ -1,46 +1,47 @@
 {
-  "homepage": "https://cedricstor.github.io/matric64-mc64.github.io",
+  "homepage": " https://cedricstor.github.io/matric64-mc64.github.io.git",
   "name": "matric64-mc64",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
-      "chess.js": "^1.1.0",
-      "react": "^19.0.0",
-      "react-chessboard": "^4.7.2",
-      "react-dom": "^19.0.0",
-      "react-scripts": "5.0.1",
-      "web-vitals": "^2.1.4"
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "chess.js": "^1.1.0",
+    "react": "^19.0.0",
+    "react-chessboard": "^4.7.2",
+    "react-dom": "^19.0.0",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-      "predeploy": "npm run build",
-      "deploy": "gh-pages -d build",
-      "start": "react-scripts start",
-      "build": "react-scripts build",
-      "serve": "serve -s build"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
-      "extends": [
-          "react-app",
-          "react-app/jest"
-      ]
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
-      "production": [
-          ">0.2%",
-          "not dead",
-          "not op_mini all"
-      ],
-      "development": [
-          "last 1 chrome version",
-          "last 1 firefox version",
-          "last 1 safari version"
-      ]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
-      "envify": "^4.1.0",
-      "gh-pages": "^6.3.0",
-      "terser": "^5.39.0",
-      "terser-brunch": "^4.1.0",
-      "uglifyify": "^5.0.2"
+    "gh-pages": "^6.3.0"
   }
 }
