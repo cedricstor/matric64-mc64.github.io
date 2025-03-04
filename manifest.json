@@ -1,7 +1,7 @@
 {
   "name": "My App",
   "short_name": "App",
-  "start_url": "/", // Updated start_url to root
+  "start_url": "/matric64-mc64.github.io/", // Updated start_url to root
   "display": "standalone",
   "background_color": "#ffffff",
   "description": "A description of my app",
@@ -11,5 +11,6 @@
       "sizes": "72x72",
       "type": "image/svg+xml"
     }
-  ]
+  ],
+  "theme_color": "#000000"
 }
