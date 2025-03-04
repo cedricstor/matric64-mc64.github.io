@@ -1,0 +1,97 @@
+# /Users/CedricBendavid/mc64/react_app_health_check.py
+
+import os
+import subprocess
+import json
+import requests
+
+REPO_URL = "https://cedricstor.github.io/matric64-mc64.github.io"
+
+def check_file_exists(file_path):
+    return os.path.exists(file_path)
+
+def run_command(command):
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        return result.returncode == 0, result.stdout, result.stderr
+    except Exception as e:
+        return False, str(e), ""
+
+def check_npm_and_node():
+    node_ok, node_version, _ = run_command("node --version")
+    npm_ok, npm_version, _ = run_command("npm --version")
+    return node_ok, node_version.strip(), npm_ok, npm_version.strip()
+
+def check_package_json():
+    package_path = "package.json"
+    if not check_file_exists(package_path):
+        return False, "package.json not found."
+    
+    try:
+        with open(package_path, "r") as file:
+            package_data = json.load(file)
+        return True, package_data
+    except json.JSONDecodeError:
+        return False, "Invalid package.json format."
+
+def check_build_folder():
+    return os.path.exists("build")
+
+def check_deployed_site(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return True, f"Site is reachable at {url}"
+        return False, f"Failed to reach site (status code: {response.status_code})"
+    except requests.RequestException as e:
+        return False, str(e)
+
+def main():
+    print("Running React App Health Check...\n")
+
+    # Check project structure
+    required_files = ["package.json", "src", "public"]
+    for item in required_files:
+        if not check_file_exists(item):
+            print(f"❌ Missing: {item}")
+        else:
+            print(f"✅ Found: {item}")
+
+    # Check Node and npm
+    node_ok, node_version, npm_ok, npm_version = check_npm_and_node()
+    if node_ok and npm_ok:
+        print(f"✅ Node.js Version: {node_version}")
+        print(f"✅ npm Version: {npm_version}")
+    else:
+        print("❌ Node.js or npm is not installed properly.")
+
+    # Check package.json validity
+    package_ok, package_data_or_message = check_package_json()
+    if package_ok:
+        print(f"✅ package.json is valid (App Name: {package_data_or_message['name']})")
+    else:
+        print(f"❌ {package_data_or_message}")
+
+    # Check npm install
+    print("\nRunning `npm install` to validate dependencies...")
+    install_ok, install_stdout, install_stderr = run_command("npm install")
+    if install_ok:
+        print("✅ npm install completed successfully.")
+    else:
+        print(f"❌ npm install failed: {install_stderr}")
+
+    # Check build folder
+    if check_build_folder():
+        print("✅ Build folder exists.")
+    else:
+        print("❌ Build folder missing. Run `npm run build` to create it.")
+
+    # Check deployed site status
+    deployed_ok, deployed_message = check_deployed_site(REPO_URL)
+    if deployed_ok:
+        print(f"✅ Deployment check: {deployed_message}")
+    else:
+        print(f"❌ Deployment check failed: {deployed_message}")
+
+if __name__ == "__main__":
+    main()
