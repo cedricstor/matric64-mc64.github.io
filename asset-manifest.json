@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/matric64-mc64.github.io.git/static/css/main.e6c13ad2.css",
-    "main.js": "/matric64-mc64.github.io.git/static/js/main.4b6fbac6.js",
-    "static/js/453.cd90fd2a.chunk.js": "/matric64-mc64.github.io.git/static/js/453.cd90fd2a.chunk.js",
-    "index.html": "/matric64-mc64.github.io.git/index.html",
-    "main.e6c13ad2.css.map": "/matric64-mc64.github.io.git/static/css/main.e6c13ad2.css.map",
-    "main.4b6fbac6.js.map": "/matric64-mc64.github.io.git/static/js/main.4b6fbac6.js.map",
-    "453.cd90fd2a.chunk.js.map": "/matric64-mc64.github.io.git/static/js/453.cd90fd2a.chunk.js.map"
+    "main.css": "/matric64-mc64.github.io/static/css/main.e6c13ad2.css",
+    "main.js": "/matric64-mc64.github.io/static/js/main.f9a925b1.js",
+    "static/js/453.cd90fd2a.chunk.js": "/matric64-mc64.github.io/static/js/453.cd90fd2a.chunk.js",
+    "index.html": "/matric64-mc64.github.io/index.html",
+    "main.e6c13ad2.css.map": "/matric64-mc64.github.io/static/css/main.e6c13ad2.css.map",
+    "main.f9a925b1.js.map": "/matric64-mc64.github.io/static/js/main.f9a925b1.js.map",
+    "453.cd90fd2a.chunk.js.map": "/matric64-mc64.github.io/static/js/453.cd90fd2a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.4b6fbac6.js"
+    "static/js/main.f9a925b1.js"
   ]
 }
