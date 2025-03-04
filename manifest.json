@@ -1,9 +1,15 @@
 {
-  "short_name": "mc64",
-  "name": "matric64-mc64",
-  "icons": [],
-  "start_url": ".",
+  "name": "My App",
+  "short_name": "App",
+  "start_url": "/", // Updated start_url to root
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "description": "A description of my app",
+  "icons": [
+    {
+      "src": "icon/mc64logo72.svg",
+      "sizes": "72x72",
+      "type": "image/svg+xml"
+    }
+  ]
 }

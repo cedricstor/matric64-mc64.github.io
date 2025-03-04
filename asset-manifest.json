@@ -6,10 +6,11 @@
     "index.html": "/cedricstor/matric64-mc64.github.io.git/index.html",
     "main.e6c13ad2.css.map": "/cedricstor/matric64-mc64.github.io.git/static/css/main.e6c13ad2.css.map",
     "main.be4a90b0.js.map": "/cedricstor/matric64-mc64.github.io.git/static/js/main.be4a90b0.js.map",
-    "453.08c9a573.chunk.js.map": "/cedricstor/matric64-mc64.github.io.git/static/js/453.08c9a573.chunk.js.map"
+    "453.08c9a573.chunk.js.map": "/cedricstor/matric64-mc64.github.io.git/static/js/453.08c9a573.chunk.js.map",
+    "logo192.png": "/cedricstor/matric64-mc64.github.io.git/icon/mc64logo72.svg"
   },
   "entrypoints": [
-    "static/css/main.e6c13ad2.css",
-    "static/js/main.be4a90b0.js"
+    "/cedricstor/matric64-mc64.github.io.git/static/css/main.e6c13ad2.css",
+    "/cedricstor/matric64-mc64.github.io.git/static/js/main.be4a90b0.js"
   ]
 }

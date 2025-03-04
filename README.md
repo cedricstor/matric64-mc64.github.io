@@ -70,3 +70,28 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
 # matric64-mc64
+
+## Deployment
+
+To deploy the application, run the following commands:
+
+```sh
+npm run build
+npm run deploy
+```
+
+## Serving the Application Locally
+
+To serve the application locally, run the following command:
+
+```sh
+npm run serve
+```
+
+Ensure that the `serve` package is installed globally:
+
+```sh
+npm install -g serve
+```
+
+If you encounter issues with the static files being served as HTML, verify that the `build` directory is correctly generated and the server is correctly serving the static files from the `build` directory.
