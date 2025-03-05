@@ -1,0 +1,10 @@
+User-agent: *
+Disallow:
+
+# Allow everything since this is a public project.
+
+# Optional: Block specific folders if needed
+# Disallow: /private-folder/
+
+# Reference to the sitemap for search engines
+Sitemap: https://cedricstor.github.io/matric64-mc64.github.io/sitemap.xml
