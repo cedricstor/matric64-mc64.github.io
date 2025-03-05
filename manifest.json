@@ -1,7 +1,7 @@
 {
     "name": "Matric64 Chess with Stockfish",
     "short_name": "Matric64 Chess",
-    "id": "https://cedricstor.github.io/matric64-mc64.github.io/",
+    "id": "/matric64-mc64.github.io/",
     "start_url": ".",
     "display": "standalone",
     "display_override": ["standalone", "minimal-ui"],
