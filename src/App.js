@@ -38,9 +38,23 @@ const App = () => {
     const [evaluation, setEvaluation] = useState("");
     const [moveHistory, setMoveHistory] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
-    const [promotionPiece, setPromotionPiece] = useState("q"); // Default to queen
+    const [promotionPiece, setPromotionPiece] = useState("q");
 
+    // Load game state and move history from localStorage
     useEffect(() => {
+        const savedFen = localStorage.getItem("chessGameFEN");
+        const savedHistory = JSON.parse(localStorage.getItem("chessMoveHistory")) || [];
+        const savedPromotionPiece = localStorage.getItem("promotionPiece") || "q";
+
+        if (savedFen) {
+            const savedGame = new Chess();
+            savedGame.load(savedFen);
+            setGame(savedGame);
+        }
+
+        setMoveHistory(savedHistory);
+        setPromotionPiece(savedPromotionPiece);
+
         const stockfishWorker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
         setStockfish(stockfishWorker);
 
@@ -49,12 +63,24 @@ const App = () => {
         };
     }, []);
 
+    // Save game state and move history to localStorage whenever game changes
+    useEffect(() => {
+        localStorage.setItem("chessGameFEN", game.fen());
+        localStorage.setItem("chessMoveHistory", JSON.stringify(moveHistory));
+        localStorage.setItem("promotionPiece", promotionPiece);
+    }, [game, moveHistory, promotionPiece]);
+
     const resetGame = () => {
-        setGame(new Chess());
+        const newGame = new Chess();
+        setGame(newGame);
         setMoveHistory([]);
         setBestMove("");
         setEvaluation("");
         setErrorMessage("");
+
+        localStorage.removeItem("chessGameFEN");
+        localStorage.removeItem("chessMoveHistory");
+        localStorage.removeItem("promotionPiece");
     };
 
     const handlePromotionChange = (event) => {
