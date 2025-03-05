@@ -4,30 +4,86 @@ import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 
+// Helper to extract evaluation, mate detection, and move sequence from Stockfish messages
 const getEvaluation = (message, turn) => {
-    let result = { bestMove: "", evaluation: "" };
+    let result = { bestMove: "", evaluation: "", forcedMate: false, mateIn: null, principalVariation: [] };
 
     if (message.startsWith("bestmove")) {
         result.bestMove = message.split(" ")[1];
     }
 
     if (message.includes("info") && message.includes("score")) {
-        const scoreParts = message.split(" ");
-        const scoreIndex = scoreParts.indexOf("score") + 2;
+        const parts = message.split(" ");
+        const scoreIndex = parts.indexOf("score") + 2;
 
-        if (scoreParts[scoreIndex - 1] === "cp") {
-            let score = parseInt(scoreParts[scoreIndex], 10);
+        if (parts[scoreIndex - 1] === "cp") {
+            let score = parseInt(parts[scoreIndex], 10);
             if (turn !== "b") {
                 score = -score;
             }
             result.evaluation = `${(score / 100).toFixed(2)}`;
-        } else if (scoreParts[scoreIndex - 1] === "mate") {
-            const mateIn = parseInt(scoreParts[scoreIndex], 10);
+        } else if (parts[scoreIndex - 1] === "mate") {
+            const mateIn = parseInt(parts[scoreIndex], 10);
+            result.mateIn = mateIn;
+            result.forcedMate = true;
             result.evaluation = `Mate in ${Math.abs(mateIn)}`;
         }
     }
 
+    if (message.includes(" pv ")) {
+        const pvIndex = message.indexOf(" pv ") + 4;
+        const pvMoves = message.slice(pvIndex).trim().split(" ");
+        result.principalVariation = pvMoves;
+    }
+
     return result;
+};
+
+// Threat Meter Component
+const ThreatMeter = ({ evaluation }) => {
+    const getThreatColor = () => {
+        const score = parseFloat(evaluation) || 0;
+        if (score > 5) return "green";
+        if (score > 2) return "lightgreen";
+        if (score > -2) return "yellow";
+        if (score > -5) return "orange";
+        return "red";
+    };
+
+    return (
+        <div style={{
+            width: "100%",
+            height: "20px",
+            backgroundColor: getThreatColor(),
+            color: "white",
+            textAlign: "center",
+            marginBottom: "10px"
+        }}>
+            {evaluation ? `Threat Level: ${evaluation}` : "Threat Level: Unknown"}
+        </div>
+    );
+};
+
+// Mate Instructions Component
+const MateInstructions = ({ mateInfo }) => {
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(mateInfo.principalVariation.join(" "));
+        alert("Move sequence copied to clipboard!");
+    };
+
+    return (
+        <div style={{ marginTop: "10px", padding: "10px", backgroundColor: "#ffeeba", border: "1px solid #ffc107" }}>
+            <h3>Guaranteed Mate Detected!</h3>
+            <p>Mate in {mateInfo.mateIn} moves.</p>
+            <h4>Correct Move Sequence:</h4>
+            <ol>
+                {mateInfo.principalVariation.map((move, index) => (
+                    <li key={index}>{move}</li>
+                ))}
+            </ol>
+            <button onClick={copyToClipboard}>Copy Move Sequence</button>
+        </div>
+    );
 };
 
 const App = () => {
@@ -38,50 +94,26 @@ const App = () => {
     const [moveHistory, setMoveHistory] = useState([]);
     const [redoStack, setRedoStack] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
-    const [promotionSquare, setPromotionSquare] = useState(null);
     const [promotionSource, setPromotionSource] = useState(null);
+    const [promotionSquare, setPromotionSquare] = useState(null);
     const [showPromotionModal, setShowPromotionModal] = useState(false);
+    const [mateInfo, setMateInfo] = useState(null);
 
     useEffect(() => {
-        const savedFen = localStorage.getItem("chessGameFEN");
-        const savedHistory = JSON.parse(localStorage.getItem("chessMoveHistory")) || [];
-        const savedRedoStack = JSON.parse(localStorage.getItem("chessRedoStack")) || [];
+        const worker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
+        setStockfish(worker);
 
-        if (savedFen) {
-            const savedGame = new Chess();
-            savedGame.load(savedFen);
-            setGame(savedGame);
-        }
-
-        setMoveHistory(savedHistory);
-        setRedoStack(savedRedoStack);
-
-        const stockfishWorker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
-        setStockfish(stockfishWorker);
-
-        return () => {
-            stockfishWorker.terminate();
-        };
+        return () => worker.terminate();
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem("chessGameFEN", game.fen());
-        localStorage.setItem("chessMoveHistory", JSON.stringify(moveHistory));
-        localStorage.setItem("chessRedoStack", JSON.stringify(redoStack));
-    }, [game, moveHistory, redoStack]);
-
     const resetGame = () => {
-        const newGame = new Chess();
-        setGame(newGame);
+        setGame(new Chess());
         setMoveHistory([]);
         setRedoStack([]);
         setBestMove("");
         setEvaluation("");
         setErrorMessage("");
-
-        localStorage.removeItem("chessGameFEN");
-        localStorage.removeItem("chessMoveHistory");
-        localStorage.removeItem("chessRedoStack");
+        setMateInfo(null);
     };
 
     const undoLastMove = () => {
@@ -89,11 +121,10 @@ const App = () => {
 
         const gameCopy = new Chess(game.fen());
         const undoneMove = gameCopy.undo();
-
         if (undoneMove) {
             setGame(gameCopy);
-            setMoveHistory((prev) => prev.slice(0, -1));
-            setRedoStack((prev) => [undoneMove, ...prev]);
+            setMoveHistory(prev => prev.slice(0, -1));
+            setRedoStack(prev => [undoneMove, ...prev]);
         }
     };
 
@@ -105,29 +136,23 @@ const App = () => {
         gameCopy.move(move);
 
         setGame(gameCopy);
-        setMoveHistory((prev) => [...prev, move.san]);
-        setRedoStack((prev) => prev.slice(1));
-    };
-
-    const onDrop = (sourceSquare, targetSquare) => {
-        if (isPromotionMove(sourceSquare, targetSquare)) {
-            setPromotionSource(sourceSquare);
-            setPromotionSquare(targetSquare);
-            setShowPromotionModal(true);
-            return false; // Block automatic move - wait for user to select piece
-        }
-
-        return handleMove(sourceSquare, targetSquare, null);
+        setMoveHistory(prev => [...prev, move.san]);
+        setRedoStack(prev => prev.slice(1));
     };
 
     const isPromotionMove = (from, to) => {
         const piece = game.get(from);
-        if (piece && piece.type === "p") {
-            if ((piece.color === "w" && to[1] === "8") || (piece.color === "b" && to[1] === "1")) {
-                return true;
-            }
+        return piece?.type === "p" && ((piece.color === "w" && to[1] === "8") || (piece.color === "b" && to[1] === "1"));
+    };
+
+    const onDrop = (source, target) => {
+        if (isPromotionMove(source, target)) {
+            setPromotionSource(source);
+            setPromotionSquare(target);
+            setShowPromotionModal(true);
+            return false;
         }
-        return false;
+        return handleMove(source, target, null);
     };
 
     const handlePromotionSelection = (piece) => {
@@ -137,64 +162,58 @@ const App = () => {
         setPromotionSquare(null);
     };
 
-    const handleMove = (sourceSquare, targetSquare, promotionPiece) => {
+    const handleMove = (source, target, promotion) => {
         const gameCopy = new Chess(game.fen());
         setErrorMessage("");
 
-        try {
-            const move = gameCopy.move({
-                from: sourceSquare,
-                to: targetSquare,
-                promotion: promotionPiece || undefined,
-            });
+        const move = gameCopy.move({ from: source, to: target, promotion });
 
-            if (move === null) {
-                setErrorMessage("Invalid move. Please try again.");
-                return false;
-            }
-
-            setGame(gameCopy);
-            setMoveHistory((prev) => [...prev, move.san]);
-            setRedoStack([]); // Clear redo stack after any valid move
-
-            if (stockfish) {
-                stockfish.postMessage(`position fen ${gameCopy.fen()}`);
-                stockfish.postMessage("go depth 15");
-
-                stockfish.onmessage = (event) => {
-                    const { bestMove, evaluation } = getEvaluation(event.data, game.turn());
-                    if (bestMove) setBestMove(bestMove);
-                    if (evaluation) setEvaluation(evaluation);
-                };
-            }
-
-            return true;
-        } catch (error) {
-            setErrorMessage(`Move failed: ${error.message}`);
-            console.error(error.message);
+        if (!move) {
+            setErrorMessage("Invalid move. Please try again.");
             return false;
         }
+
+        setGame(gameCopy);
+        setMoveHistory(prev => [...prev, move.san]);
+        setRedoStack([]);
+
+        stockfish.postMessage(`position fen ${gameCopy.fen()}`);
+        stockfish.postMessage("go depth 15");
+
+        stockfish.onmessage = (event) => {
+            const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
+            setBestMove(bestMove || "");
+            setEvaluation(evaluation || "");
+
+            if (forcedMate) {
+                setMateInfo({ mateIn, principalVariation });
+                alert(`Guaranteed Checkmate Detected! Mate in ${mateIn}`);
+            } else {
+                setMateInfo(null);
+            }
+        };
+
+        return true;
     };
 
     return (
-        <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
+        <div style={{ display: "flex", flexDirection: "row", padding: "20px", gap: "20px" }}>
             <div>
                 <h1>Chess Game with Stockfish</h1>
                 <button onClick={resetGame}>Reset Game</button>
                 <button onClick={undoLastMove}>Undo Last Move</button>
                 <button onClick={redoLastMove}>Redo Last Move</button>
-
                 <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={500} />
-
                 {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
                 <h3>Best Move: {bestMove || "Calculating..."}</h3>
-                <h3>Evaluation: {evaluation || "Evaluating..."}</h3>
+                <ThreatMeter evaluation={evaluation} />
+                {mateInfo && <MateInstructions mateInfo={mateInfo} />}
             </div>
 
             {showPromotionModal && (
-                <div style={{ backgroundColor: "white", padding: "20px", border: "1px solid black", zIndex: 1000 }}>
+                <div style={{ backgroundColor: "#fff", padding: "15px", border: "1px solid black", zIndex: 1000 }}>
                     <h3>Select Promotion Piece</h3>
-                    {["q", "r", "b", "n"].map((piece) => (
+                    {["q", "r", "b", "n"].map(piece => (
                         <button key={piece} onClick={() => handlePromotionSelection(piece)}>
                             {piece.toUpperCase()}
                         </button>
