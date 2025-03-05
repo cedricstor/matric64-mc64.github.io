@@ -60,14 +60,17 @@ const App = () => {
     };
 
     const undoLastMove = () => {
-        if (moveHistory.length === 0) return;
-
-        const gameCopy = new Chess(game.fen());
-        gameCopy.undo();
-        setGame(gameCopy);
-
-        setMoveHistory((prev) => prev.slice(0, -1));
-    };
+      if (moveHistory.length === 0) return;
+  
+      const gameCopy = new Chess(game.fen());
+  
+      const undoneMove = gameCopy.undo();  // Actually undo the move in game state
+  
+      if (undoneMove) {
+          setGame(gameCopy);  // Set the new game state after undo
+          setMoveHistory((prev) => prev.slice(0, -1));  // Remove last move from history
+      }
+  };
 
     const handlePromotionSelection = (piece) => {
         handleMove(promotionSource, promotionSquare, piece);
