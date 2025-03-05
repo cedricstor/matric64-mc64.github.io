@@ -1,79 +1,74 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    <!-- Main homepage -->
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/</loc>
+        <loc>https://www.matric64.online/</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
-    <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/about</loc>
-        <lastmod>2025-03-04</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/contact</loc>
-        <lastmod>2025-03-04</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
 
+    <!-- Suggested static pages -->
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/openings</loc>
+        <loc>https://www.matric64.online/about</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/tactics</loc>
+        <loc>https://www.matric64.online/contact</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/endgames</loc>
+        <loc>https://www.matric64.online/openings</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/analysis</loc>
+        <loc>https://www.matric64.online/tactics</loc>
+        <lastmod>2025-03-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://www.matric64.online/endgames</loc>
+        <lastmod>2025-03-04</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://www.matric64.online/analysis</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/learn</loc>
+        <loc>https://www.matric64.online/learn</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/faq</loc>
+        <loc>https://www.matric64.online/faq</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/rules</loc>
+        <loc>https://www.matric64.online/rules</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.6</priority>
     </url>
-    
     <url>
-        <loc>https://cedricstor.github.io/matric64-mc64.github.io/settings</loc>
+        <loc>https://www.matric64.online/settings</loc>
         <lastmod>2025-03-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.6</priority>
     </url>
-    
+
 </urlset>

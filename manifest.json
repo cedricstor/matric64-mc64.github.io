@@ -1,8 +1,8 @@
 {
     "name": "Matric64 Chess with Stockfish",
     "short_name": "Matric64 Chess",
-    "id": "/matric64-mc64.github.io/",
-    "start_url": ".",
+    "id": "/",
+    "start_url": "/",
     "display": "standalone",
     "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "orientation": "landscape",
@@ -11,55 +11,55 @@
     "description": "Play chess with Stockfish analysis.",
     "icons": [
         {
-            "src": "icon/mc64logo72.png",
+            "src": "/icon/mc64logo72.png",
             "sizes": "72x72",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo96.png",
+            "src": "/icon/mc64logo96.png",
             "sizes": "96x96",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo128.png",
+            "src": "/icon/mc64logo128.png",
             "sizes": "128x128",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo144.png",
+            "src": "/icon/mc64logo144.png",
             "sizes": "144x144",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo152.png",
+            "src": "/icon/mc64logo152.png",
             "sizes": "152x152",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo192.png",
+            "src": "/icon/mc64logo192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo384.png",
+            "src": "/icon/mc64logo384.png",
             "sizes": "384x384",
             "type": "image/png"
         },
         {
-            "src": "icon/mc64logo512.png",
+            "src": "/icon/mc64logo512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
     ],
     "screenshots": [
         {
-            "src": "screenshots/screenshot-desktop.png",
+            "src": "/screenshots/screenshot-desktop.png",
             "sizes": "1280x720",
             "type": "image/png",
             "form_factor": "wide"
         },
         {
-            "src": "screenshots/screenshot-mobile.png",
+            "src": "/screenshots/screenshot-mobile.png",
             "sizes": "720x1280",
             "type": "image/png",
             "form_factor": "narrow"

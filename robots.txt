@@ -7,4 +7,4 @@ Disallow:
 # Disallow: /private-folder/
 
 # Reference to the sitemap for search engines
-Sitemap: https://cedricstor.github.io/matric64-mc64.github.io/sitemap.xml
+Sitemap: https://www.matric64.online/sitemap.xml
