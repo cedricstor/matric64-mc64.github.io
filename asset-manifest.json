@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/matric64-mc64.github.io/static/css/main.e6c13ad2.css",
-    "main.js": "/matric64-mc64.github.io/static/js/main.a228c765.js",
+    "main.js": "/matric64-mc64.github.io/static/js/main.28d6d2bb.js",
     "static/js/453.cd90fd2a.chunk.js": "/matric64-mc64.github.io/static/js/453.cd90fd2a.chunk.js",
     "index.html": "/matric64-mc64.github.io/index.html",
     "main.e6c13ad2.css.map": "/matric64-mc64.github.io/static/css/main.e6c13ad2.css.map",
-    "main.a228c765.js.map": "/matric64-mc64.github.io/static/js/main.a228c765.js.map",
+    "main.28d6d2bb.js.map": "/matric64-mc64.github.io/static/js/main.28d6d2bb.js.map",
     "453.cd90fd2a.chunk.js.map": "/matric64-mc64.github.io/static/js/453.cd90fd2a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.a228c765.js"
+    "static/js/main.28d6d2bb.js"
   ]
 }
