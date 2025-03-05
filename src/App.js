@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
+import ThreatMeter from "./ThreatMeter";
+import MateInstructions from "./MateInstructions";
 
 // Helper to extract evaluation, mate detection, and move sequence from Stockfish messages
 const getEvaluation = (message, turn) => {
@@ -37,52 +39,6 @@ const getEvaluation = (message, turn) => {
     }
 
     return result;
-};
-
-// Threat Meter Component
-const ThreatMeter = ({ evaluation }) => {
-    const getThreatColor = () => {
-        const score = parseFloat(evaluation) || 0;
-        if (score > 5) return "green";
-        if (score > 2) return "lightgreen";
-        if (score > -2) return "yellow";
-        if (score > -5) return "orange";
-        return "red";
-    };
-
-    return (
-        <div style={{
-            width: "100%",
-            height: "20px",
-            backgroundColor: getThreatColor(),
-            color: "black", // Changed to black for visibility
-            textAlign: "center",
-            marginBottom: "10px"
-        }}>
-            {evaluation ? `Threat Level: ${evaluation}` : "Threat Level: Unknown"}
-        </div>
-    );
-};
-
-// Mate Instructions Component
-const MateInstructions = ({ mateInfo }) => {
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(mateInfo.principalVariation.join(" "));
-    };
-
-    return (
-        <div style={{ marginTop: "10px", padding: "10px", backgroundColor: "#ffeeba", border: "1px solid #ffc107" }}>
-            <h3>Guaranteed Mate Detected!</h3>
-            <p>Mate in {mateInfo.mateIn} moves.</p>
-            <h4>Correct Move Sequence:</h4>
-            <ol>
-                {mateInfo.principalVariation.map((move, index) => (
-                    <li key={index}>{move}</li>
-                ))}
-            </ol>
-            <button onClick={copyToClipboard}>Copy Move Sequence</button>
-        </div>
-    );
 };
 
 const App = () => {
