@@ -136,16 +136,19 @@ const App = () => {
         stockfish.postMessage("go depth 15");
 
         stockfish.onmessage = (event) => {
-            const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
-            setBestMove(bestMove || "");
-            setEvaluation(evaluation || "");
-
-            if (forcedMate) {
-                setMateInfo({ mateIn, principalVariation });
-            } else {
-                setMateInfo(null);
-            }
-        };
+          console.log("Stockfish Message:", event.data);  // Optional debugging log to monitor data flow
+      
+          const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
+      
+          setBestMove(bestMove || "");
+          setEvaluation(evaluation || "");  // Ensures empty string if nothing returned, avoiding undefined issues
+      
+          if (forcedMate) {
+              setMateInfo({ mateIn, principalVariation });
+          } else {
+              setMateInfo(null);
+          }
+      };
 
         return true;
     };
