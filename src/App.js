@@ -55,7 +55,7 @@ const ThreatMeter = ({ evaluation }) => {
             width: "100%",
             height: "20px",
             backgroundColor: getThreatColor(),
-            color: "white",
+            color: "black", // Changed to black for visibility
             textAlign: "center",
             marginBottom: "10px"
         }}>
@@ -68,7 +68,6 @@ const ThreatMeter = ({ evaluation }) => {
 const MateInstructions = ({ mateInfo }) => {
     const copyToClipboard = () => {
         navigator.clipboard.writeText(mateInfo.principalVariation.join(" "));
-        alert("Move sequence copied to clipboard!");
     };
 
     return (
@@ -187,7 +186,6 @@ const App = () => {
 
             if (forcedMate) {
                 setMateInfo({ mateIn, principalVariation });
-                alert(`Guaranteed Checkmate Detected! Mate in ${mateIn}`);
             } else {
                 setMateInfo(null);
             }
