@@ -1,0 +1,15 @@
+{
+  "name": "Matric64 Chess Game",
+  "short_name": "MC64",
+  "start_url": "/matric64-mc64.github.io/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "description": "Play Chess with Stockfish.",
+  "icons": [
+      {
+          "src": "icon/mc64logo72.svg",
+          "sizes": "72x72",
+          "type": "image/svg+xml"
+      }
+  ]
+}
