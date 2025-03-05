@@ -114,7 +114,7 @@ const App = () => {
             setPromotionSource(sourceSquare);
             setPromotionSquare(targetSquare);
             setShowPromotionModal(true);
-            return false;  // Block automatic promotion until user chooses piece.
+            return false; // Block automatic move - wait for user to select piece
         }
 
         return handleMove(sourceSquare, targetSquare, null);
@@ -145,7 +145,7 @@ const App = () => {
             const move = gameCopy.move({
                 from: sourceSquare,
                 to: targetSquare,
-                promotion: promotionPiece || undefined,  // Only pass promotion if set.
+                promotion: promotionPiece || undefined,
             });
 
             if (move === null) {
@@ -155,7 +155,7 @@ const App = () => {
 
             setGame(gameCopy);
             setMoveHistory((prev) => [...prev, move.san]);
-            setRedoStack([]);  // Clear redo stack after any new move.
+            setRedoStack([]); // Clear redo stack after any valid move
 
             if (stockfish) {
                 stockfish.postMessage(`position fen ${gameCopy.fen()}`);
@@ -177,37 +177,22 @@ const App = () => {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "row", gap: "20px", padding: "20px" }}>
+        <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
             <div>
                 <h1>Chess Game with Stockfish</h1>
-                <button onClick={resetGame} style={{ marginBottom: "10px" }}>Reset Game</button>
-                <button onClick={undoLastMove} style={{ marginBottom: "10px", marginLeft: "10px" }}>Undo Last Move</button>
-                <button onClick={redoLastMove} style={{ marginBottom: "10px", marginLeft: "10px" }}>Redo Last Move</button>
+                <button onClick={resetGame}>Reset Game</button>
+                <button onClick={undoLastMove}>Undo Last Move</button>
+                <button onClick={redoLastMove}>Redo Last Move</button>
 
-                <Chessboard
-                    position={game.fen()}
-                    onPieceDrop={onDrop}
-                    boardWidth={500}
-                />
+                <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={500} />
 
-                {errorMessage && <p style={{ color: "red", marginTop: "10px" }}>{errorMessage}</p>}
-                <div>
-                    <h3>Best Move: {bestMove || "Calculating..."}</h3>
-                    <h3>Evaluation: {evaluation || "Evaluating..."}</h3>
-                </div>
-            </div>
-
-            <div>
-                <h3>Move History</h3>
-                <ol>
-                    {moveHistory.map((move, index) => (
-                        <li key={index}>{move}</li>
-                    ))}
-                </ol>
+                {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+                <h3>Best Move: {bestMove || "Calculating..."}</h3>
+                <h3>Evaluation: {evaluation || "Evaluating..."}</h3>
             </div>
 
             {showPromotionModal && (
-                <div style={modalStyles}>
+                <div style={{ backgroundColor: "white", padding: "20px", border: "1px solid black", zIndex: 1000 }}>
                     <h3>Select Promotion Piece</h3>
                     {["q", "r", "b", "n"].map((piece) => (
                         <button key={piece} onClick={() => handlePromotionSelection(piece)}>
@@ -219,7 +204,5 @@ const App = () => {
         </div>
     );
 };
-
-const modalStyles = { /* styles omitted for brevity */ };
 
 export default App;
