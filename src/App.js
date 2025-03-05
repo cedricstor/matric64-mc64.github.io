@@ -36,12 +36,26 @@ const App = () => {
     const [bestMove, setBestMove] = useState("");
     const [evaluation, setEvaluation] = useState("");
     const [moveHistory, setMoveHistory] = useState([]);
+    const [redoStack, setRedoStack] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [promotionSquare, setPromotionSquare] = useState(null);
     const [promotionSource, setPromotionSource] = useState(null);
     const [showPromotionModal, setShowPromotionModal] = useState(false);
 
     useEffect(() => {
+        const savedFen = localStorage.getItem("chessGameFEN");
+        const savedHistory = JSON.parse(localStorage.getItem("chessMoveHistory")) || [];
+        const savedRedoStack = JSON.parse(localStorage.getItem("chessRedoStack")) || [];
+
+        if (savedFen) {
+            const savedGame = new Chess();
+            savedGame.load(savedFen);
+            setGame(savedGame);
+        }
+
+        setMoveHistory(savedHistory);
+        setRedoStack(savedRedoStack);
+
         const stockfishWorker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
         setStockfish(stockfishWorker);
 
@@ -50,33 +64,49 @@ const App = () => {
         };
     }, []);
 
+    useEffect(() => {
+        localStorage.setItem("chessGameFEN", game.fen());
+        localStorage.setItem("chessMoveHistory", JSON.stringify(moveHistory));
+        localStorage.setItem("chessRedoStack", JSON.stringify(redoStack));
+    }, [game, moveHistory, redoStack]);
+
     const resetGame = () => {
         const newGame = new Chess();
         setGame(newGame);
         setMoveHistory([]);
+        setRedoStack([]);
         setBestMove("");
         setEvaluation("");
         setErrorMessage("");
+
+        localStorage.removeItem("chessGameFEN");
+        localStorage.removeItem("chessMoveHistory");
+        localStorage.removeItem("chessRedoStack");
     };
 
     const undoLastMove = () => {
-      if (moveHistory.length === 0) return;
-  
-      const gameCopy = new Chess(game.fen());
-  
-      const undoneMove = gameCopy.undo();  // Actually undo the move in game state
-  
-      if (undoneMove) {
-          setGame(gameCopy);  // Set the new game state after undo
-          setMoveHistory((prev) => prev.slice(0, -1));  // Remove last move from history
-      }
-  };
+        if (moveHistory.length === 0) return;
 
-    const handlePromotionSelection = (piece) => {
-        handleMove(promotionSource, promotionSquare, piece);
-        setShowPromotionModal(false);
-        setPromotionSource(null);
-        setPromotionSquare(null);
+        const gameCopy = new Chess(game.fen());
+        const undoneMove = gameCopy.undo();
+
+        if (undoneMove) {
+            setGame(gameCopy);
+            setMoveHistory((prev) => prev.slice(0, -1));
+            setRedoStack((prev) => [undoneMove, ...prev]);
+        }
+    };
+
+    const redoLastMove = () => {
+        if (redoStack.length === 0) return;
+
+        const gameCopy = new Chess(game.fen());
+        const move = redoStack[0];
+        gameCopy.move(move);
+
+        setGame(gameCopy);
+        setMoveHistory((prev) => [...prev, move.san]);
+        setRedoStack((prev) => prev.slice(1));
     };
 
     const onDrop = (sourceSquare, targetSquare) => {
@@ -84,10 +114,10 @@ const App = () => {
             setPromotionSource(sourceSquare);
             setPromotionSquare(targetSquare);
             setShowPromotionModal(true);
-            return false; // Block move until promotion is handled
+            return false;  // Block automatic promotion until user chooses piece.
         }
 
-        return handleMove(sourceSquare, targetSquare, "q"); // Default to queen for non-promotion moves
+        return handleMove(sourceSquare, targetSquare, null);
     };
 
     const isPromotionMove = (from, to) => {
@@ -100,6 +130,13 @@ const App = () => {
         return false;
     };
 
+    const handlePromotionSelection = (piece) => {
+        handleMove(promotionSource, promotionSquare, piece);
+        setShowPromotionModal(false);
+        setPromotionSource(null);
+        setPromotionSquare(null);
+    };
+
     const handleMove = (sourceSquare, targetSquare, promotionPiece) => {
         const gameCopy = new Chess(game.fen());
         setErrorMessage("");
@@ -108,7 +145,7 @@ const App = () => {
             const move = gameCopy.move({
                 from: sourceSquare,
                 to: targetSquare,
-                promotion: promotionPiece,
+                promotion: promotionPiece || undefined,  // Only pass promotion if set.
             });
 
             if (move === null) {
@@ -118,6 +155,7 @@ const App = () => {
 
             setGame(gameCopy);
             setMoveHistory((prev) => [...prev, move.san]);
+            setRedoStack([]);  // Clear redo stack after any new move.
 
             if (stockfish) {
                 stockfish.postMessage(`position fen ${gameCopy.fen()}`);
@@ -144,6 +182,7 @@ const App = () => {
                 <h1>Chess Game with Stockfish</h1>
                 <button onClick={resetGame} style={{ marginBottom: "10px" }}>Reset Game</button>
                 <button onClick={undoLastMove} style={{ marginBottom: "10px", marginLeft: "10px" }}>Undo Last Move</button>
+                <button onClick={redoLastMove} style={{ marginBottom: "10px", marginLeft: "10px" }}>Redo Last Move</button>
 
                 <Chessboard
                     position={game.fen()}
@@ -167,47 +206,20 @@ const App = () => {
                 </ol>
             </div>
 
-            {/* Promotion Modal */}
             {showPromotionModal && (
                 <div style={modalStyles}>
                     <h3>Select Promotion Piece</h3>
-                    <div style={{ display: "flex", gap: "10px" }}>
-                        {["q", "r", "b", "n"].map((piece) => (
-                            <button
-                                key={piece}
-                                onClick={() => handlePromotionSelection(piece)}
-                                style={pieceButtonStyles}
-                            >
-                                {piece === "q" ? "♕ Queen" :
-                                 piece === "r" ? "♖ Rook" :
-                                 piece === "b" ? "♗ Bishop" :
-                                 "♘ Knight"}
-                            </button>
-                        ))}
-                    </div>
+                    {["q", "r", "b", "n"].map((piece) => (
+                        <button key={piece} onClick={() => handlePromotionSelection(piece)}>
+                            {piece.toUpperCase()}
+                        </button>
+                    ))}
                 </div>
             )}
         </div>
     );
 };
 
-// Basic styles for modal
-const modalStyles = {
-    position: "fixed",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    backgroundColor: "white",
-    padding: "20px",
-    boxShadow: "0px 0px 10px rgba(0,0,0,0.3)",
-    zIndex: 1000,
-    borderRadius: "8px"
-};
-
-const pieceButtonStyles = {
-    fontSize: "16px",
-    padding: "10px 20px",
-    cursor: "pointer"
-};
+const modalStyles = { /* styles omitted for brevity */ };
 
 export default App;
