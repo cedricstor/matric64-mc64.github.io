@@ -38,6 +38,7 @@ const App = () => {
     const [evaluation, setEvaluation] = useState("");
     const [moveHistory, setMoveHistory] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
+    const [promotionPiece, setPromotionPiece] = useState("q"); // Default to queen
 
     useEffect(() => {
         const stockfishWorker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
@@ -48,15 +49,27 @@ const App = () => {
         };
     }, []);
 
+    const resetGame = () => {
+        setGame(new Chess());
+        setMoveHistory([]);
+        setBestMove("");
+        setEvaluation("");
+        setErrorMessage("");
+    };
+
+    const handlePromotionChange = (event) => {
+        setPromotionPiece(event.target.value);
+    };
+
     const onDrop = (sourceSquare, targetSquare) => {
         const gameCopy = new Chess(game.fen());
-        setErrorMessage("");  // Clear previous errors
+        setErrorMessage("");
 
         try {
             const move = gameCopy.move({
                 from: sourceSquare,
                 to: targetSquare,
-                promotion: "q", // Always promote to queen for simplicity
+                promotion: promotionPiece, // Use user-selected promotion piece
             });
 
             if (move === null) {
@@ -65,7 +78,7 @@ const App = () => {
             }
 
             setGame(gameCopy);
-            setMoveHistory((prev) => [...prev, move.san]);  // Store move in history
+            setMoveHistory((prev) => [...prev, move.san]);
 
             if (stockfish) {
                 stockfish.postMessage(`position fen ${gameCopy.fen()}`);
@@ -90,17 +103,31 @@ const App = () => {
         <div style={{ display: "flex", flexDirection: "row", gap: "20px", padding: "20px" }}>
             <div>
                 <h1>Chess Game with Stockfish</h1>
+                <button onClick={resetGame} style={{ marginBottom: "10px" }}>Reset Game</button>
+
+                <div style={{ marginBottom: "10px" }}>
+                    <label>Promotion Piece: </label>
+                    <select value={promotionPiece} onChange={handlePromotionChange}>
+                        <option value="q">Queen</option>
+                        <option value="r">Rook</option>
+                        <option value="b">Bishop</option>
+                        <option value="n">Knight</option>
+                    </select>
+                </div>
+
                 <Chessboard
                     position={game.fen()}
                     onPieceDrop={onDrop}
                     boardWidth={500}
                 />
+
                 {errorMessage && <p style={{ color: "red", marginTop: "10px" }}>{errorMessage}</p>}
                 <div>
                     <h3>Best Move: {bestMove || "Calculating..."}</h3>
                     <h3>Evaluation: {evaluation || "Evaluating..."}</h3>
                 </div>
             </div>
+
             <div>
                 <h3>Move History</h3>
                 <ol>
