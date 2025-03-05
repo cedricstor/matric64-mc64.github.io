@@ -6,7 +6,6 @@ import { Chess } from "chess.js";
 import ThreatMeter from "./ThreatMeter";
 import MateInstructions from "./MateInstructions";
 
-// Helper to extract evaluation, mate detection, and move sequence from Stockfish messages
 const getEvaluation = (message, turn) => {
     let result = { bestMove: "", evaluation: "", forcedMate: false, mateIn: null, principalVariation: [] };
 
@@ -20,9 +19,7 @@ const getEvaluation = (message, turn) => {
 
         if (parts[scoreIndex - 1] === "cp") {
             let score = parseInt(parts[scoreIndex], 10);
-            if (turn !== "b") {
-                score = -score;
-            }
+            if (turn !== "b") score = -score;
             result.evaluation = `${(score / 100).toFixed(2)}`;
         } else if (parts[scoreIndex - 1] === "mate") {
             const mateIn = parseInt(parts[scoreIndex], 10);
@@ -53,6 +50,7 @@ const App = () => {
     const [promotionSquare, setPromotionSquare] = useState(null);
     const [showPromotionModal, setShowPromotionModal] = useState(false);
     const [mateInfo, setMateInfo] = useState(null);
+    const [stockfishLog, setStockfishLog] = useState([]);
 
     useEffect(() => {
         const worker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
@@ -69,6 +67,7 @@ const App = () => {
         setEvaluation("");
         setErrorMessage("");
         setMateInfo(null);
+        setStockfishLog([]);
     };
 
     const undoLastMove = () => {
@@ -133,28 +132,28 @@ const App = () => {
         setRedoStack([]);
 
         stockfish.postMessage(`position fen ${gameCopy.fen()}`);
-        stockfish.postMessage("go depth 15");
+        stockfish.postMessage("go depth 20");  // Increased depth for better forced mate detection
 
         stockfish.onmessage = (event) => {
-          console.log("Stockfish Message:", event.data);  // Optional debugging log to monitor data flow
-      
-          const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
-      
-          setBestMove(bestMove || "");
-          setEvaluation(evaluation || "");  // Ensures empty string if nothing returned, avoiding undefined issues
-      
-          if (forcedMate) {
-              setMateInfo({ mateIn, principalVariation });
-          } else {
-              setMateInfo(null);
-          }
-      };
+            setStockfishLog(prev => [...prev.slice(-19), event.data]);  // Store last 20 logs only
+
+            const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
+
+            setBestMove(bestMove || "");
+            setEvaluation(evaluation || "");
+
+            if (forcedMate) {
+                setMateInfo({ mateIn, principalVariation });
+            } else {
+                setMateInfo(null);
+            }
+        };
 
         return true;
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "row", padding: "20px", gap: "20px" }}>
+        <div style={{ display: "flex", flexDirection: "column", padding: "20px", gap: "20px" }}>
             <div>
                 <h1>Chess Game with Stockfish</h1>
                 <button onClick={resetGame}>Reset Game</button>
@@ -177,6 +176,14 @@ const App = () => {
                     ))}
                 </div>
             )}
+
+            {/* Real-time Stockfish log for debugging */}
+            <div style={{ maxHeight: "200px", overflowY: "auto", backgroundColor: "#f0f0f0", padding: "10px", fontSize: "12px" }}>
+                <h4>Stockfish Logs</h4>
+                <pre style={{ whiteSpace: "pre-wrap" }}>
+                    {stockfishLog.join("\n")}
+                </pre>
+            </div>
         </div>
     );
 };
