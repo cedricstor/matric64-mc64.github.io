@@ -3,7 +3,6 @@
 import os
 import subprocess
 import json
-import requests
 
 REPO_URL = "https://cedricstor.github.io/matric64-mc64.github.io"
 
