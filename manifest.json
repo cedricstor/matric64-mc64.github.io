@@ -4,7 +4,7 @@
     "id": "/matric64-mc64.github.io/",
     "start_url": ".",
     "display": "standalone",
-    "display_override": ["standalone", "minimal-ui"],
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "orientation": "landscape",
     "background_color": "#ffffff",
     "theme_color": "#000000",
