@@ -49,6 +49,11 @@ const App = () => {
     const [fromSquare, setFromSquare] = useState(null);
     const [toSquare, setToSquare] = useState(null);
     const [bestMoveArrow, setBestMoveArrow] = useState([]);
+    const [playerColor, setPlayerColor] = useState("w");
+    const [isPvS, setIsPvS] = useState(false); // Player vs Stockfish mode toggle
+    const [promotionSource, setPromotionSource] = useState(null);
+    const [promotionSquare, setPromotionSquare] = useState(null);
+    const [showPromotionModal, setShowPromotionModal] = useState(false);
     const arrowColor = "rgba(0, 0, 255, 0.6)";
 
     useEffect(() => {
@@ -57,8 +62,10 @@ const App = () => {
         return () => worker.terminate();
     }, []);
 
-    const resetGame = () => {
-        setGame(new Chess());
+    const resetGame = (color = "w") => {
+        const newGame = new Chess();
+        setGame(newGame);
+        setPlayerColor(color);
         setBestMove("");
         setEvaluation("");
         setMateInfo(null);
@@ -66,23 +73,39 @@ const App = () => {
         setFromSquare(null);
         setToSquare(null);
         setBestMoveArrow([]);
+        setShowPromotionModal(false);
+
+        if (color === "b" && isPvS) {
+            // Stockfish opens if player is black
+            setTimeout(() => {
+                requestStockfishMove(newGame);
+            }, 100);
+        }
     };
 
-    const handleMove = (source, target, promotion) => {
-        const gameCopy = new Chess(game.fen());
-        if (!gameCopy.move({ from: source, to: target, promotion })) return false;
+    const requestStockfishMove = (currentGame) => {
+        stockfish.postMessage(`position fen ${currentGame.fen()}`);
+        stockfish.postMessage("go depth 12");
 
-        setGame(gameCopy);
-        setFromSquare(source);
-        setToSquare(target);
-        setBestMoveArrow([]);  // Clear arrow on player move
+        stockfish.onmessage = (event) => {
+            const { bestMove } = getEvaluation(event.data, currentGame.turn());
+            if (bestMove) {
+                currentGame.move({ from: bestMove.slice(0, 2), to: bestMove.slice(2, 4) });
+                setGame(new Chess(currentGame.fen()));
+                setFromSquare(bestMove.slice(0, 2));
+                setToSquare(bestMove.slice(2, 4));
+                updateEvaluation(currentGame);
+            }
+        };
+    };
 
-        stockfish.postMessage(`position fen ${gameCopy.fen()}`);
+    const updateEvaluation = (currentGame) => {
+        stockfish.postMessage(`position fen ${currentGame.fen()}`);
         stockfish.postMessage("go depth 12");
 
         stockfish.onmessage = (event) => {
             setStockfishLog(prev => [...prev.slice(-19), event.data]);
-            const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
+            const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, currentGame.turn());
             setBestMove(bestMove || "");
             setEvaluation(evaluation || "");
 
@@ -96,8 +119,53 @@ const App = () => {
                 setMateInfo(null);
             }
         };
+    };
+
+    const handleMove = (source, target, promotion) => {
+        const gameCopy = new Chess(game.fen());
+        if (!gameCopy.move({ from: source, to: target, promotion })) return false;
+
+        setGame(gameCopy);
+        setFromSquare(source);
+        setToSquare(target);
+        setBestMoveArrow([]);
+
+        updateEvaluation(gameCopy);
+
+        if (isPvS && gameCopy.turn() !== playerColor) {
+            setTimeout(() => requestStockfishMove(gameCopy), 300);
+        }
 
         return true;
+    };
+
+    const handleUndo = () => {
+        const gameCopy = new Chess(game.fen());
+        gameCopy.undo();
+        setGame(gameCopy);
+        updateEvaluation(gameCopy);
+    };
+
+    const isPromotionMove = (from, to) => {
+        const piece = game.get(from);
+        return piece?.type === "p" && ((piece.color === "w" && to[1] === "8") || (piece.color === "b" && to[1] === "1"));
+    };
+
+    const onDrop = (source, target) => {
+        if (isPromotionMove(source, target)) {
+            setPromotionSource(source);
+            setPromotionSquare(target);
+            setShowPromotionModal(true);
+            return false;
+        }
+        return handleMove(source, target, "q");
+    };
+
+    const handlePromotionSelection = (piece) => {
+        handleMove(promotionSource, promotionSquare, piece);
+        setShowPromotionModal(false);
+        setPromotionSource(null);
+        setPromotionSquare(null);
     };
 
     const getSquareStyles = () => ({
@@ -108,18 +176,24 @@ const App = () => {
     return (
         <Container>
             <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
-                <Button variant="contained" onClick={resetGame}>Reset Game</Button>
+                <Button variant="contained" onClick={() => resetGame("w")}>Play as White</Button>
+                <Button variant="contained" onClick={() => resetGame("b")}>Play as Black</Button>
+                <Button variant="contained" onClick={handleUndo}>Undo Move</Button>
+                <Button variant="contained" onClick={() => setIsPvS(!isPvS)}>
+                    Switch to {isPvS ? "PvP" : "PvS"} Mode
+                </Button>
             </Box>
 
             <Box>
                 <Typography variant="h4">Chess Game with Stockfish</Typography>
                 <Chessboard
                     position={game.fen()}
-                    onPieceDrop={(s, t) => handleMove(s, t, null)}
+                    onPieceDrop={onDrop}
                     boardWidth={500}
                     customSquareStyles={getSquareStyles()}
                     customArrows={bestMoveArrow}
                     customArrowColor={arrowColor}
+                    boardOrientation={playerColor === "w" ? "white" : "black"}
                 />
                 <Typography variant="h6">Best Move: {bestMove || "Calculating..."}</Typography>
                 <ThreatMeter evaluation={evaluation} />
@@ -132,6 +206,15 @@ const App = () => {
                     {stockfishLog.join("\n")}
                 </pre>
             </Box>
+
+            {showPromotionModal && (
+                <Box sx={{ backgroundColor: "#fff", padding: 2, border: "1px solid black", zIndex: 1000 }}>
+                    <Typography>Select Promotion Piece</Typography>
+                    {["q", "r", "b", "n"].map(piece => (
+                        <Button key={piece} onClick={() => handlePromotionSelection(piece)}>{piece.toUpperCase()}</Button>
+                    ))}
+                </Box>
+            )}
         </Container>
     );
 };
