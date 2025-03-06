@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Chessboard } from "react-chessboard";
+import { Chessboard, Pieces } from "react-chessboard";
 import { Chess } from "chess.js";
 import ThreatMeter from "./ThreatMeter";
 import MateInstructions from "./MateInstructions";
@@ -216,9 +216,13 @@ const App = () => {
             {showPromotionModal && (
                 <Box sx={{ backgroundColor: "#fff", padding: 2, border: "1px solid black", zIndex: 1000, position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
                     <Typography>Select Promotion Piece</Typography>
-                    {["q", "r", "b", "n"].map(piece => (
-                        <Button key={piece} onClick={() => handlePromotionSelection(piece)}>{piece.toUpperCase()}</Button>
-                    ))}
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                        {["q", "r", "b", "n"].map(piece => (
+                            <Button key={piece} onClick={() => handlePromotionSelection(piece)}>
+                                <Pieces piece={`${piece}${playerColor}`} style={{ width: 50, height: 50 }} />
+                            </Button>
+                        ))}
+                    </Box>
                 </Box>
             )}
         </Container>
