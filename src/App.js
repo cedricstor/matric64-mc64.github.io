@@ -8,7 +8,7 @@ import {
     Container,
     Typography,
     Box
-} from "@mui.material";
+} from "@mui/material";
 
 // Parse Stockfish output for best move, evaluation, mate, etc.
 const getEvaluation = (message, turn) => {
