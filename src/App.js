@@ -54,6 +54,8 @@ const App = () => {
     const [promotionSource, setPromotionSource] = useState(null);
     const [promotionSquare, setPromotionSquare] = useState(null);
     const [showPromotionModal, setShowPromotionModal] = useState(false);
+    const [moveHistory, setMoveHistory] = useState([]);
+    const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
     const arrowColor = "rgba(0, 0, 255, 0.6)";
 
     useEffect(() => {
@@ -130,6 +132,11 @@ const App = () => {
         setToSquare(target);
         setBestMoveArrow([]);
 
+        const newMoveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+        newMoveHistory.push(gameCopy.fen());
+        setMoveHistory(newMoveHistory);
+        setCurrentMoveIndex(newMoveHistory.length - 1);
+
         updateEvaluation(gameCopy);
 
         if (isPvS && gameCopy.turn() !== playerColor) {
@@ -140,9 +147,10 @@ const App = () => {
     };
 
     const handleUndo = () => {
-        const gameCopy = new Chess(game.fen());
-        gameCopy.undo();
+        if (currentMoveIndex <= 0) return;
+        const gameCopy = new Chess(moveHistory[currentMoveIndex - 1]);
         setGame(gameCopy);
+        setCurrentMoveIndex(currentMoveIndex - 1);
         updateEvaluation(gameCopy);
     };
 
