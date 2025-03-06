@@ -6,6 +6,7 @@ import { Chess } from "chess.js";
 import ThreatMeter from "./ThreatMeter";
 import MateInstructions from "./MateInstructions";
 
+// Parse Stockfish messages to extract evaluation, best move, mate info, and principal variation
 const getEvaluation = (message, turn) => {
     let result = { bestMove: "", evaluation: "", forcedMate: false, mateIn: null, principalVariation: [] };
 
@@ -51,11 +52,12 @@ const App = () => {
     const [showPromotionModal, setShowPromotionModal] = useState(false);
     const [mateInfo, setMateInfo] = useState(null);
     const [stockfishLog, setStockfishLog] = useState([]);
+    const [fromSquare, setFromSquare] = useState(null);
+    const [toSquare, setToSquare] = useState(null);
 
     useEffect(() => {
         const worker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
         setStockfish(worker);
-
         return () => worker.terminate();
     }, []);
 
@@ -68,6 +70,8 @@ const App = () => {
         setErrorMessage("");
         setMateInfo(null);
         setStockfishLog([]);
+        setFromSquare(null);
+        setToSquare(null);
     };
 
     const undoLastMove = () => {
@@ -79,6 +83,8 @@ const App = () => {
             setGame(gameCopy);
             setMoveHistory(prev => prev.slice(0, -1));
             setRedoStack(prev => [undoneMove, ...prev]);
+            setFromSquare(undoneMove.from);
+            setToSquare(undoneMove.to);
         }
     };
 
@@ -92,6 +98,8 @@ const App = () => {
         setGame(gameCopy);
         setMoveHistory(prev => [...prev, move.san]);
         setRedoStack(prev => prev.slice(1));
+        setFromSquare(move.from);
+        setToSquare(move.to);
     };
 
     const isPromotionMove = (from, to) => {
@@ -130,12 +138,14 @@ const App = () => {
         setGame(gameCopy);
         setMoveHistory(prev => [...prev, move.san]);
         setRedoStack([]);
+        setFromSquare(source);
+        setToSquare(target);
 
         stockfish.postMessage(`position fen ${gameCopy.fen()}`);
-        stockfish.postMessage("go depth 20");  // Increased depth for better forced mate detection
+        stockfish.postMessage("go depth 20");
 
         stockfish.onmessage = (event) => {
-            setStockfishLog(prev => [...prev.slice(-19), event.data]);  // Store last 20 logs only
+            setStockfishLog(prev => [...prev.slice(-19), event.data]);
 
             const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
 
@@ -152,6 +162,13 @@ const App = () => {
         return true;
     };
 
+    const getSquareStyles = () => {
+        const styles = {};
+        if (fromSquare) styles[fromSquare] = { backgroundColor: "rgba(173, 216, 230, 0.8)" };
+        if (toSquare) styles[toSquare] = { backgroundColor: "rgba(144, 238, 144, 0.8)" };
+        return styles;
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", padding: "20px", gap: "20px" }}>
             <div>
@@ -159,7 +176,14 @@ const App = () => {
                 <button onClick={resetGame}>Reset Game</button>
                 <button onClick={undoLastMove}>Undo Last Move</button>
                 <button onClick={redoLastMove}>Redo Last Move</button>
-                <Chessboard position={game.fen()} onPieceDrop={onDrop} boardWidth={500} />
+
+                <Chessboard
+                    position={game.fen()}
+                    onPieceDrop={onDrop}
+                    boardWidth={500}
+                    customSquareStyles={getSquareStyles()}
+                />
+
                 {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
                 <h3>Best Move: {bestMove || "Calculating..."}</h3>
                 <ThreatMeter evaluation={evaluation} />
@@ -177,7 +201,6 @@ const App = () => {
                 </div>
             )}
 
-            {/* Real-time Stockfish log for debugging */}
             <div style={{ maxHeight: "200px", overflowY: "auto", backgroundColor: "#f0f0f0", padding: "10px", fontSize: "12px" }}>
                 <h4>Stockfish Logs</h4>
                 <pre style={{ whiteSpace: "pre-wrap" }}>
