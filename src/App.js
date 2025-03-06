@@ -1,5 +1,3 @@
-// src/App.js
-
 import React, { useState, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
