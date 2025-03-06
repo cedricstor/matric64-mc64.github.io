@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <string name="settings">Подешавања</string>
-  <string name="closeAccount">Затворите налог</string>
-  <string name="cantOpenSimilarAccount">Неће Вам бити допуштено да отворите нови налог са истим именом, чак и ако капитализација слова буде другачија.</string>
-  <string name="thisAccountIsClosed">Овај налог је затворен.</string>
-</resources>
