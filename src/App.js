@@ -146,7 +146,7 @@ const App = () => {
         setBestMoveArrow([]);  // Clear arrow on player move
 
         stockfish.postMessage(`position fen ${gameCopy.fen()}`);
-        stockfish.postMessage("go depth 20");
+        stockfish.postMessage("go depth 12");
 
         stockfish.onmessage = (event) => {
             setStockfishLog(prev => [...prev.slice(-19), event.data]);
