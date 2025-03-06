@@ -52,8 +52,8 @@ const App = () => {
     const [playerColor, setPlayerColor] = useState("w");
     const [isPvS, setIsPvS] = useState(false); // Player vs Stockfish mode toggle
     const [promotionSource, setPromotionSource] = useState(null);
-    const [promotionSquare, setPromotionSquare] = useState(null);
     const [showPromotionModal, setShowPromotionModal] = useState(false);
+    const [promotionSquare, setPromotionSquare] = useState(null);
     const [moveHistory, setMoveHistory] = useState([]);
     const [currentMoveIndex, setCurrentMoveIndex] = useState(-1);
     const arrowColor = "rgba(0, 0, 255, 0.6)";
