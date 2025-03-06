@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="settings">Nuostatos</string>
+  <string name="closeAccount">Uždaryti paskyrą</string>
+  <string name="managedAccountCannotBeClosed">Jūsų paskyra yra valdoma ir negali būti uždaryta.</string>
+  <string name="cantOpenSimilarAccount">Negalėsite susikurti kitos paskyros su tokiu pačiu vardu, net jeigu skirsis didžiosios / mažosios raidės.</string>
+  <string name="thisAccountIsClosed">Ši paskyra uždaryta.</string>
+</resources>

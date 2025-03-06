@@ -1,0 +1,57 @@
+$c-fork: $c-primary;
+
+.analyse__fork {
+  @extend %flex-center;
+
+  flex: 0 0 auto;
+
+  @include mq-is-col1 {
+    display: none;
+  }
+
+  move {
+    @extend %san, %flex-center;
+    background: $m-primary_bg--mix-25;
+    color: $c-font-clear;
+    flex: 0 0 50%;
+    cursor: pointer;
+    padding: 0.2em 1em;
+    border-bottom: 1px solid $c-bg-box;
+
+    &:nth-child(odd) {
+      border-inline-end: 1px solid $c-bg-box;
+    }
+    &.correct {
+      background: $m-secondary_bg--mix-25;
+    }
+    &.wrong {
+      background: $m-bad_bg--mix-25;
+    }
+  }
+
+  move:hover,
+  &:not(:hover) move.selected {
+    background: $c-fork;
+    color: #fff;
+    &.correct {
+      background: $c-secondary;
+    }
+    &.wrong {
+      background: $c-bad;
+    }
+  }
+
+  glyph {
+    @extend %base-font;
+
+    margin-inline-start: 2px;
+  }
+
+  eval {
+    @extend %roboto;
+
+    flex: 3 0 auto;
+    text-align: right;
+    font-size: 0.9em;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "dasher",
+  "version": "2.0.0",
+  "private": true,
+  "description": "lichess.org multipurpose dropdown",
+  "author": "Thibault Duplessis",
+  "license": "AGPL-3.0-or-later",
+  "types": "dist/dasher.d.ts",
+  "exports": {
+    ".": "./src/dasher.ts"
+  },
+  "dependencies": {
+    "common": "workspace:*"
+  },
+  "build": {
+    "bundle": "src/dasher.ts"
+  }
+}

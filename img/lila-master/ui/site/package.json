@@ -1,0 +1,39 @@
+{
+  "name": "site",
+  "version": "2.0.0",
+  "private": true,
+  "description": "lichess.org website globals",
+  "author": "Thibault Duplessis",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "api": "workspace:*",
+    "chat": "workspace:*",
+    "chess": "workspace:*",
+    "common": "workspace:*",
+    "dialog-polyfill": "0.5.6",
+    "lichess-pgn-viewer": "^2.4.0",
+    "tablesort": "^5.3.0"
+  },
+  "build": {
+    "bundle": [
+      "src/site.*Embed.ts",
+      {
+        "module": "src/site.ts",
+        "inline": "src/site.inline.ts"
+      }
+    ],
+    "sync": {
+      "node_modules/dialog-polyfill/dist/dialog-polyfill.esm.js": "/public/npm"
+    },
+    "hash": [
+      "/public/font/*.woff2",
+      "/public/images/**",
+      "/public/javascripts/**",
+      "/public/lifat/background/**/*.webp",
+      "/public/npm/*",
+      "/public/piece/**",
+      "/public/piece-css/*",
+      "/public/sound/**/*.mp3"
+    ]
+  }
+}

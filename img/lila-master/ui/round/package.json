@@ -1,0 +1,22 @@
+{
+  "name": "round",
+  "version": "2.0.0",
+  "private": true,
+  "description": "lichess.org round",
+  "author": "Thibault Duplessis",
+  "license": "AGPL-3.0-or-later",
+  "types": "dist/interfaces.d.ts",
+  "dependencies": {
+    "chat": "workspace:*",
+    "chess": "workspace:*",
+    "common": "workspace:*",
+    "game": "workspace:*",
+    "keyboardMove": "workspace:*",
+    "voice": "workspace:*",
+    "nvui": "workspace:*",
+    "shepherd.js": "^11.2.0"
+  },
+  "build": {
+    "bundle": "src/**/round.*ts"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "racer",
+  "version": "2.0.0",
+  "private": true,
+  "description": "lichess.org puzzle racer",
+  "author": "Thibault Duplessis",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "chess": "workspace:*",
+    "common": "workspace:*",
+    "puz": "workspace:*"
+  },
+  "build": {
+    "bundle": "src/racer.ts"
+  }
+}
