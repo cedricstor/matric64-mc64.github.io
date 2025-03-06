@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Chessboard, Pieces } from "react-chessboard";
+import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import ThreatMeter from "./ThreatMeter";
 import MateInstructions from "./MateInstructions";
@@ -8,7 +8,7 @@ import {
     Container,
     Typography,
     Box
-} from "@mui/material";
+} from "@mui.material";
 
 // Parse Stockfish output for best move, evaluation, mate, etc.
 const getEvaluation = (message, turn) => {
@@ -179,6 +179,14 @@ const App = () => {
         [toSquare]: { backgroundColor: "rgba(144, 238, 144, 0.8)" }
     });
 
+    const renderPromotionPiece = (piece) => (
+        <img
+            src={`https://chessboardimage.com/${piece}${playerColor}.png`}
+            alt={piece}
+            style={{ width: 50, height: 50 }}
+        />
+    );
+
     return (
         <Container>
             <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
@@ -219,7 +227,7 @@ const App = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
                         {["q", "r", "b", "n"].map(piece => (
                             <Button key={piece} onClick={() => handlePromotionSelection(piece)}>
-                                <Pieces piece={`${piece}${playerColor}`} style={{ width: 50, height: 50 }} />
+                                {renderPromotionPiece(piece)}
                             </Button>
                         ))}
                     </Box>
