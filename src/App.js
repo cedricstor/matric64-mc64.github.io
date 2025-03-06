@@ -15,7 +15,6 @@ import {
     ListItemText
 } from "@mui/material";
 
-// Parse Stockfish output for evaluation, best move, mate, etc.
 const getEvaluation = (message, turn) => {
     let result = { bestMove: "", evaluation: "", forcedMate: false, mateIn: null, principalVariation: [] };
 
@@ -53,7 +52,9 @@ const App = () => {
     const [toSquare, setToSquare] = useState(null);
     const [bestMoveArrow, setBestMoveArrow] = useState([]);
     const [moveHistory, setMoveHistory] = useState([]);
-    const [isPvS, setIsPvS] = useState(true);  // Player vs Stockfish toggle
+    const [redoStack, setRedoStack] = useState([]);
+    const [isPvS, setIsPvS] = useState(true);
+    const [playerColor, setPlayerColor] = useState("w");
     const arrowColor = "rgba(0, 0, 255, 0.6)";
 
     useEffect(() => {
@@ -62,8 +63,10 @@ const App = () => {
         return () => worker.terminate();
     }, []);
 
-    const resetGame = () => {
-        setGame(new Chess());
+    const resetGame = (color = "w") => {
+        const newGame = new Chess();
+        setGame(newGame);
+        setPlayerColor(color);
         setBestMove("");
         setEvaluation("");
         setMateInfo(null);
@@ -72,6 +75,7 @@ const App = () => {
         setToSquare(null);
         setBestMoveArrow([]);
         setMoveHistory([]);
+        setRedoStack([]);
     };
 
     const handleMove = (source, target, promotion) => {
@@ -80,14 +84,12 @@ const App = () => {
 
         setGame(gameCopy);
         setMoveHistory([...moveHistory, gameCopy.history({ verbose: true }).pop()]);
+        setRedoStack([]);
         setFromSquare(source);
         setToSquare(target);
-        setBestMoveArrow([]);  // Clear arrow on player move
+        setBestMoveArrow([]);
 
-        if (isPvS && gameCopy.turn() === "b") {
-            stockfish.postMessage(`position fen ${gameCopy.fen()}`);
-            stockfish.postMessage("go depth 12");
-        } else if (isPvS && gameCopy.turn() === "w") {
+        if (isPvS) {
             stockfish.postMessage(`position fen ${gameCopy.fen()}`);
             stockfish.postMessage("go depth 12");
         }
@@ -113,25 +115,38 @@ const App = () => {
     };
 
     const handleUndo = () => {
+        if (moveHistory.length === 0) return;
+
         const gameCopy = new Chess(game.fen());
+        const undoneMove = gameCopy.undo();
 
-        if (isPvS) {
-            gameCopy.undo(); // Undo player move
-            gameCopy.undo(); // Undo Stockfish response
-        } else {
-            gameCopy.undo(); // Only undo one move in PvP mode
+        if (undoneMove) {
+            setGame(gameCopy);
+            setMoveHistory(moveHistory.slice(0, -1));
+            setRedoStack([undoneMove, ...redoStack]);
+            setFromSquare(null);
+            setToSquare(null);
+            setBestMoveArrow([]);
+
+            if (isPvS) updateEvaluation(gameCopy);
         }
+    };
 
-        setGame(new Chess(gameCopy.fen()));
+    const handleRedo = () => {
+        if (redoStack.length === 0) return;
 
-        setMoveHistory(gameCopy.history({ verbose: true }));
-        setFromSquare(null);
-        setToSquare(null);
+        const gameCopy = new Chess(game.fen());
+        const move = redoStack[0];
+        gameCopy.move(move);
+
+        setGame(gameCopy);
+        setMoveHistory([...moveHistory, move]);
+        setRedoStack(redoStack.slice(1));
+        setFromSquare(move.from);
+        setToSquare(move.to);
         setBestMoveArrow([]);
 
-        if (isPvS) {
-            updateEvaluation(gameCopy);
-        }
+        if (isPvS) updateEvaluation(gameCopy);
     };
 
     const updateEvaluation = (gameInstance) => {
@@ -148,18 +163,20 @@ const App = () => {
         };
     };
 
+    const toggleMode = () => setIsPvS(!isPvS);
+
     const getSquareStyles = () => ({
         [fromSquare]: { backgroundColor: "rgba(173, 216, 230, 0.8)" },
         [toSquare]: { backgroundColor: "rgba(144, 238, 144, 0.8)" }
     });
 
-    const toggleMode = () => setIsPvS(!isPvS);
-
     return (
         <Container>
             <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
-                <Button variant="contained" onClick={resetGame}>Reset Game</Button>
+                <Button variant="contained" onClick={() => resetGame("w")}>Play as White</Button>
+                <Button variant="contained" onClick={() => resetGame("b")}>Play as Black</Button>
                 <Button variant="contained" onClick={handleUndo}>Undo Move</Button>
+                <Button variant="contained" onClick={handleRedo}>Redo Move</Button>
                 <Button variant="contained" onClick={toggleMode}>
                     {isPvS ? "Switch to PvP Mode" : "Switch to PvS Mode"}
                 </Button>
@@ -170,6 +187,7 @@ const App = () => {
                 <Chessboard
                     position={game.fen()}
                     onPieceDrop={(s, t) => handleMove(s, t, null)}
+                    boardOrientation={playerColor === "w" ? "white" : "black"}
                     boardWidth={500}
                     customSquareStyles={getSquareStyles()}
                     customArrows={bestMoveArrow}
