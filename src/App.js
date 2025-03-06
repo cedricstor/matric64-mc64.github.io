@@ -216,7 +216,7 @@ const App = () => {
             </Box>
 
             {showPromotionModal && (
-                <Box sx={{ backgroundColor: "#fff", padding: 2, border: "1px solid black", zIndex: 1000 }}>
+                <Box sx={{ backgroundColor: "#fff", padding: 2, border: "1px solid black", zIndex: 1000, position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
                     <Typography>Select Promotion Piece</Typography>
                     {["q", "r", "b", "n"].map(piece => (
                         <Button key={piece} onClick={() => handlePromotionSelection(piece)}>{piece.toUpperCase()}</Button>
