@@ -39,26 +39,7 @@ const getEvaluation = (message, turn) => {
     return result;
 };
 
-// Function to clean and extract bare moves from PGN
-const extractMoves = (pgn) => {
-    return pgn.replace(/^\[.*\]$/gm, "")
-        .replace(/\{.*?\}/g, "")
-        .replace(/\d+\.+/g, "")
-        .trim()
-        .replace(/\s+/g, " ");
-};
-
-// Function to calculate FEN from PGN moves
-const calculateFenFromMoves = (pgn) => {
-    const chess = new Chess();
-    chess.loadPgn(extractMoves(pgn));
-    return chess.fen();
-};
-
 const App = () => {
-    const [view, setView] = useState("chess");
-
-    // Chess Game with Stockfish
     const [game, setGame] = useState(new Chess());
     const [stockfish, setStockfish] = useState(null);
     const [bestMove, setBestMove] = useState("");
@@ -94,7 +75,7 @@ const App = () => {
         setGame(gameCopy);
         setFromSquare(source);
         setToSquare(target);
-        setBestMoveArrow([]);
+        setBestMoveArrow([]);  // Clear arrow on player move
 
         stockfish.postMessage(`position fen ${gameCopy.fen()}`);
         stockfish.postMessage("go depth 12");
@@ -104,7 +85,16 @@ const App = () => {
             const { bestMove, evaluation, forcedMate, mateIn, principalVariation } = getEvaluation(event.data, game.turn());
             setBestMove(bestMove || "");
             setEvaluation(evaluation || "");
-            if (bestMove) setBestMoveArrow([[bestMove.slice(0, 2), bestMove.slice(2, 4)]]);
+
+            if (bestMove) {
+                setBestMoveArrow([[bestMove.slice(0, 2), bestMove.slice(2, 4)]]);
+            }
+
+            if (forcedMate) {
+                setMateInfo({ mateIn, principalVariation });
+            } else {
+                setMateInfo(null);
+            }
         };
 
         return true;
