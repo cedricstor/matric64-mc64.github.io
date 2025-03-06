@@ -54,6 +54,8 @@ const App = () => {
     const [stockfishLog, setStockfishLog] = useState([]);
     const [fromSquare, setFromSquare] = useState(null);
     const [toSquare, setToSquare] = useState(null);
+    const [bestMoveArrow, setBestMoveArrow] = useState([]);
+    const arrowColor = "rgba(0, 0, 255, 0.6)";
 
     useEffect(() => {
         const worker = new Worker(`${process.env.PUBLIC_URL}/js/stockfish-17-lite-single.js`);
@@ -72,6 +74,7 @@ const App = () => {
         setStockfishLog([]);
         setFromSquare(null);
         setToSquare(null);
+        setBestMoveArrow([]);
     };
 
     const undoLastMove = () => {
@@ -140,6 +143,7 @@ const App = () => {
         setRedoStack([]);
         setFromSquare(source);
         setToSquare(target);
+        setBestMoveArrow([]);  // Clear arrow on player move
 
         stockfish.postMessage(`position fen ${gameCopy.fen()}`);
         stockfish.postMessage("go depth 20");
@@ -151,6 +155,10 @@ const App = () => {
 
             setBestMove(bestMove || "");
             setEvaluation(evaluation || "");
+
+            if (bestMove) {
+                setBestMoveArrow([[bestMove.slice(0, 2), bestMove.slice(2, 4)]]);
+            }
 
             if (forcedMate) {
                 setMateInfo({ mateIn, principalVariation });
@@ -182,6 +190,8 @@ const App = () => {
                     onPieceDrop={onDrop}
                     boardWidth={500}
                     customSquareStyles={getSquareStyles()}
+                    customArrows={bestMoveArrow}
+                    customArrowColor={arrowColor}
                 />
 
                 {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
