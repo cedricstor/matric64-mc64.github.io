@@ -219,7 +219,9 @@ const App = () => {
                 <Box sx={{ backgroundColor: "#fff", padding: 2, border: "1px solid black", zIndex: 1000, position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
                     <Typography>Select Promotion Piece</Typography>
                     {["q", "r", "b", "n"].map(piece => (
-                        <Button key={piece} onClick={() => handlePromotionSelection(piece)}>{piece.toUpperCase()}</Button>
+                        <Button key={piece} onClick={() => handlePromotionSelection(piece)}>
+                            <img src={`/path/to/${piece}.png`} alt={piece} />
+                        </Button>
                     ))}
                 </Box>
             )}
